@@ -6,5 +6,5 @@ package com.kairos.jobportal.dto;
  * @Time: 12:06 pm
  */
 
-public record LoginResponseDto(String message, UserDto userDto, String jwtToken) {
+public record LoginResponseDto(String message, UserDto user, String jwtToken) {
 }

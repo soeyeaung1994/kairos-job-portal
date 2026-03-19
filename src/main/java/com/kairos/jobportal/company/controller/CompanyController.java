@@ -1,5 +1,6 @@
 package com.kairos.jobportal.company.controller;
 
+import com.kairos.jobportal.aspects.LogAspect;
 import com.kairos.jobportal.company.service.ICompanyService;
 import com.kairos.jobportal.dto.CompanyDto;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class CompanyController {
 
     private final ICompanyService companyService;
 
+//    @LogAspect
     @GetMapping(path = "/public", version = "1.0")
     public ResponseEntity<List<CompanyDto>> getAllCompanies(){
         List<CompanyDto> allCompanies = companyService.getAllCompanies();
