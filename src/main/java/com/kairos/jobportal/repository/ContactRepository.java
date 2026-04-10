@@ -1,8 +1,13 @@
 package com.kairos.jobportal.repository;
 
 import com.kairos.jobportal.entity.Contact;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @Author: Soe Ye Aung
@@ -12,4 +17,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, Long> {
+
+    List<Contact> findContactsByStatus(String status);
+
+    List<Contact> findContactsByStatusOrderByCreatedAtAsc(String status);
+
+    List<Contact> findContactsByStatus(String status, Sort sort);
+
+    Page<Contact> findContactsByStatus(String status, Pageable pageable);
+
 }

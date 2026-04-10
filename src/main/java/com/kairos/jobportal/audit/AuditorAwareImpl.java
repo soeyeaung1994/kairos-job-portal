@@ -1,5 +1,6 @@
 package com.kairos.jobportal.audit;
 
+import com.kairos.jobportal.util.ApplicationUtility;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,6 @@ import java.util.Optional;
 public class AuditorAwareImpl implements AuditorAware {
     @Override
     public Optional getCurrentAuditor() {
-        return Optional.of("Anonymous User");
+        return Optional.of(ApplicationUtility.getLoggedInUser());
     }
 }

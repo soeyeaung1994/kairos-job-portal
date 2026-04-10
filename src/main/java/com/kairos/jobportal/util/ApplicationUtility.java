@@ -1,0 +1,33 @@
+package com.kairos.jobportal.util;
+
+import com.kairos.jobportal.constants.ApplicationConstants;
+import com.kairos.jobportal.entity.JobPortalUser;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+/**
+ * @Author: Soe Ye Aung
+ * @Date: 10/4/26
+ * @Time: 5:47 pm
+ */
+
+public class ApplicationUtility {
+
+    public static String getLoggedInUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal().equals("anonymousUser")) {
+            return ApplicationConstants.SYSTEM;
+        }
+        Object principal = authentication.getPrincipal();
+        String username;
+        if (principal instanceof JobPortalUser jobPortalUser) {
+            username = jobPortalUser.getEmail();
+        } else {
+            username = principal.toString(); // fallback
+        }
+        return username;
+    }
+
+}

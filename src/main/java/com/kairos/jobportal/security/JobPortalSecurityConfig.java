@@ -1,6 +1,7 @@
 package com.kairos.jobportal.security;
 
 import com.kairos.jobportal.security.filter.JwtTokenValidatorFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -44,6 +44,9 @@ public class JobPortalSecurityConfig {
     @Qualifier("securedPaths")
     private final List<String> securedPaths;
 
+    @Qualifier("adminPaths")
+    private final List<String> adminPaths;
+
     @Bean
     SecurityFilterChain customSecurityFilterChain(HttpSecurity http) {
         return http
@@ -53,12 +56,26 @@ public class JobPortalSecurityConfig {
                 .cors(corsConfig -> corsConfig.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(requests -> {
                     publicPaths.forEach(path -> requests.requestMatchers(path).permitAll());
+                    adminPaths.forEach(path -> requests.requestMatchers(path).hasRole("ADMIN"));
                     securedPaths.forEach(path -> requests.requestMatchers(path).authenticated());
                     requests.anyRequest().denyAll();
                 })
                 .addFilterBefore(new JwtTokenValidatorFilter(publicPaths), BasicAuthenticationFilter.class)
                 .formLogin(flc -> flc.disable())
-                .httpBasic(Customizer.withDefaults())
+                .httpBasic(hbc -> hbc.disable())
+                .exceptionHandling(exception -> exception
+                                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                    response.setContentType("application/json");
+                                    response.getWriter().write("{\"error\": \"Access Denied\", \"message\": \"You don't have permission to access this resource\"}");
+                                })
+//                        .authenticationEntryPoint((request, response, authException) -> {
+//                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//                            response.setContentType("application/json");
+//                            response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Authentication required\"}");
+//                        })
+
+                )
                 .build();
     }
 
@@ -77,7 +94,7 @@ public class JobPortalSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authorizationManager(AuthenticationProvider authenticationProvider){
+    public AuthenticationManager authorizationManager(AuthenticationProvider authenticationProvider) {
         return new ProviderManager(authenticationProvider);
     }
 
@@ -87,7 +104,7 @@ public class JobPortalSecurityConfig {
     }
 
     @Bean
-    public CompromisedPasswordChecker compromisedPasswordChecker(){
+    public CompromisedPasswordChecker compromisedPasswordChecker() {
         return new HaveIBeenPwnedRestApiPasswordChecker();
     }
 }

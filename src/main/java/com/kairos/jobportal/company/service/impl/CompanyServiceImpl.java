@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.kairos.jobportal.constants.ApplicationConstants.ACTIVE_STATUS;
+
 /**
  * @Author: Soe Ye Aung
  * @Date: 27/2/26
@@ -26,7 +28,7 @@ public class CompanyServiceImpl implements ICompanyService {
 
     @Override
     public List<CompanyDto> getAllCompanies() {
-        List<Company> companyList = companyRepository.findAll();
+        List<Company> companyList = companyRepository.findAllWithJobsByStatus(ACTIVE_STATUS);
         return companyList.stream().map(this::transformCompanyEntityToDto).collect(Collectors.toList());
     }
 
